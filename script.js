@@ -25,7 +25,7 @@ function handleGoogleLogin() {
     const primaryDomain = getPrimaryDomain();
     const siteUrlForAuth = primaryDomain; 
     const callbackUri = encodeURIComponent(window.location.origin + window.location.pathname);
-    const googleLoginUrl = `${GOOGLE_AUTH_ENDPOINT}?url=ershiliul.com;&redirect_uri=${callbackUri}`;
+    const googleLoginUrl = `${GOOGLE_AUTH_ENDPOINT}?url=erohmed.com;&redirect_uri=${callbackUri}`;
     window.location.href = googleLoginUrl;
 }
 
