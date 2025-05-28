@@ -149,6 +149,7 @@ function logout() {
 
 function checkGoogleLoginCallback() {
     const url = window.location.href;
+    console.log("Current URL being checked for login callback:", url);
     if (url.includes('google_id=')) { // Checks if Google login data is in the URL
         const params = new URLSearchParams(url.substring(url.indexOf('?') + 1)); // More robust way to get query params
         
