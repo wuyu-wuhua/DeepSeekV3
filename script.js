@@ -194,10 +194,14 @@ function checkGoogleLoginCallback() {
 }
 
 function populateUserProfilePage() {
+    console.log("Attempting to populate user profile page."); // 新日志1
+
     if (!isLoggedIn()) {
+        console.log("User not logged in (token not found), redirecting to login.html."); // 新日志2
         window.location.href = 'login.html';
         return;
     }
+    console.log("User is logged in (token found)."); // 新日志3
 
     const userProfileAvatarImg = document.getElementById('userProfileAvatar');
     const userProfileAvatarText = document.getElementById('userProfileAvatarText');
@@ -208,23 +212,49 @@ function populateUserProfilePage() {
     const userEmail = localStorage.getItem('email') || 'N/A';
     const userPicture = localStorage.getItem('picture');
 
+    // 新日志4：打印从 localStorage 获取到的具体值
+    console.log("Data retrieved from localStorage for profile page:", {
+        retrievedName: localStorage.getItem('name'),
+        retrievedEmail: localStorage.getItem('email'),
+        retrievedPicture: localStorage.getItem('picture'),
+        finalUserName: userName, // 值（可能包含默认值）
+        finalUserEmail: userEmail, // 值（可能包含默认值）
+        finalUserPicture: userPicture // 值（可能包含默认值）
+    });
+
+    if (!userProfileNameSpan || !userProfileEmailSpan) {
+        console.error("Profile page HTML elements (userProfileName or userProfileEmail) not found!"); // 新日志5
+        // Avatar elements are optional if text fallback is used, but name/email spans are crucial.
+    }
+
     if (userPicture) {
+        console.log("User picture found:", userPicture); // 新日志6
         if (userProfileAvatarImg) {
             userProfileAvatarImg.src = userPicture;
             userProfileAvatarImg.alt = userName;
             userProfileAvatarImg.style.display = 'block';
+            console.log("Avatar image element updated."); // 新日志7
         }
         if (userProfileAvatarText) userProfileAvatarText.style.display = 'none';
     } else {
+        console.log("User picture NOT found, attempting text avatar."); // 新日志8
         if (userProfileAvatarText) {
             userProfileAvatarText.textContent = userName.charAt(0).toUpperCase();
             userProfileAvatarText.style.display = 'flex'; 
+            console.log("Text avatar element updated with first letter:", userName.charAt(0).toUpperCase()); // 新日志9
         }
         if (userProfileAvatarImg) userProfileAvatarImg.style.display = 'none';
     }
 
-    if (userProfileNameSpan) userProfileNameSpan.textContent = userName;
-    if (userProfileEmailSpan) userProfileEmailSpan.textContent = userEmail;
+    if (userProfileNameSpan) {
+        userProfileNameSpan.textContent = userName;
+        console.log("Username span updated to:", userName); // 新日志10
+    }
+    if (userProfileEmailSpan) {
+        userProfileEmailSpan.textContent = userEmail;
+        console.log("Email span updated to:", userEmail); // 新日志11
+    }
+    console.log("Profile page population attempt complete."); // 新日志12
 }
 
 document.addEventListener('DOMContentLoaded', () => {
