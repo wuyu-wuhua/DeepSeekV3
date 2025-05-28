@@ -1439,6 +1439,13 @@ document.addEventListener('DOMContentLoaded', () => {
     checkGoogleLoginCallback(); 
     updateLoginUI(); 
 
+    // Explicitly check and call for view-profile.html RIGHT AFTER core login UI updates
+    console.log("Checking if current page is view-profile.html. Pathname:", window.location.pathname);
+    if (window.location.pathname.endsWith('view-profile.html')) {
+        console.log("Path matches view-profile.html, calling populateUserProfilePage NOW.");
+        populateUserProfilePage();
+    }
+
     // Check if we need to load a specific chat on page load (e.g., after redirect)
     const urlParams = new URLSearchParams(window.location.search);
     const chatToLoad = urlParams.get('loadChat');
@@ -1462,9 +1469,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Call specific page initializers if they exist
-    if (window.location.pathname.endsWith('view-profile.html')) {
-        populateUserProfilePage();
-    }
+    // if (window.location.pathname.endsWith('view-profile.html')) {
+    //     populateUserProfilePage();
+    // }
 });
 
 function getPixelSize(ratio) {
