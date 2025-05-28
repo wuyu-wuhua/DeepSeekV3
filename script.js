@@ -22,10 +22,15 @@ function getPrimaryDomain() {
 }
 
 function handleGoogleLogin() {
-    const primaryDomain = getPrimaryDomain();
-    const siteUrlForAuth = primaryDomain; 
-    const callbackUri = encodeURIComponent(window.location.origin + window.location.pathname);
-    const googleLoginUrl = `${GOOGLE_AUTH_ENDPOINT}?url=erohmed.com;&redirect_uri=${callbackUri}`;
+    // const primaryDomain = getPrimaryDomain(); // Not strictly needed if redirect_uri is absolute
+    // const siteUrlForAuth = primaryDomain; 
+    
+    // Ensure redirect_uri is the main page (e.g., index.html) or a dedicated callback page
+    // For simplicity with current structure, let's redirect to index.html of the current origin.
+    const callbackUri = encodeURIComponent(window.location.origin + '/index.html'); 
+    
+    // The 'url=erohmed.com' seems like a fixed parameter for your PHP script. Keep it if it's necessary.
+    const googleLoginUrl = `${GOOGLE_AUTH_ENDPOINT}?url=erohmed.com&redirect_uri=${callbackUri}`;
     window.location.href = googleLoginUrl;
 }
 
@@ -144,32 +149,45 @@ function logout() {
 
 function checkGoogleLoginCallback() {
     const url = window.location.href;
-    if (url.includes('google_id=')) {
-        const params = new URLSearchParams(url.split('?')[1]);
+    if (url.includes('google_id=')) { // Checks if Google login data is in the URL
+        const params = new URLSearchParams(url.substring(url.indexOf('?') + 1)); // More robust way to get query params
         
         const googleId = params.get('google_id');
         const name = params.get('name');
         const email = params.get('email');
         const picture = params.get('picture');
         
-        console.log("Google Login Data:", { googleId, name, email, picture });
+        console.log("Google Login Data Received:", { googleId, name, email, picture });
 
-        if (googleId) localStorage.setItem('google_id', googleId);
-        if (name) localStorage.setItem('name', name);
-        if (email) localStorage.setItem('email', email);
-        if (picture) localStorage.setItem('picture', picture);
-        
-        const tokenPayload = { googleId, name, email, picture };
-        const token = btoa(JSON.stringify(tokenPayload)); 
-        localStorage.setItem('token', token);
-        
-        updateLoginUI(); 
+        if (googleId && name && email) { // Ensure essential data is present
+            localStorage.setItem('google_id', googleId);
+            localStorage.setItem('name', name);
+            localStorage.setItem('email', email);
+            if (picture) localStorage.setItem('picture', picture); // Picture is optional
+            
+            const tokenPayload = { googleId, name, email, picture };
+            // Simple base64 encoding for the token. For production, consider JWTs.
+            const token = btoa(JSON.stringify(tokenPayload)); 
+            localStorage.setItem('token', token);
+            
+            console.log("User data stored in localStorage. Token created.");
+            updateLoginUI(); 
 
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-        
-        if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
-            window.location.href = 'index.html'; 
+            // Clean the URL to remove Google login parameters
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+            
+            // If login parameters were processed and we are not on index.html, redirect to index.html.
+            // This ensures a consistent landing spot after login.
+            if (window.location.pathname !== '/index.html' && window.location.pathname !== '/') {
+                console.log("Redirecting to index.html after processing login callback.");
+                window.location.href = 'index.html'; 
+            }
+        } else {
+            console.warn("Google login callback parameters missing essential data (googleId, name, or email).");
+            // Optionally, clean URL even if data is missing to prevent re-processing
+            const cleanUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
         }
     }
 }
